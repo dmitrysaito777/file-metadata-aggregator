@@ -37,3 +37,10 @@ The trade-off: it uses `fs.readdir({ recursive: true })`, which buffers the enti
 - **`directoryCount` excludes the root.** It is the number of subdirectories found, because the root is not an entry returned by `readdir`.
 - **Files that vanish between `readdir` and `stat`** are counted in `statErrors` rather than aborting the walk. A partial result for a live filesystem is more useful than a thrown error that forces a full retry.
 - **Requires Node 20.9+**, where `readdir({ recursive: true, withFileTypes: true })` landed. Earlier versions will throw at call time.
+
+## Design notes
+
+The window stores values eagerly rather than keeping running aggregates. Running
+sums drift with floating point over long streams, and recomputing from a small
+buffer is cheap enough that the drift is not worth the speed.
+
